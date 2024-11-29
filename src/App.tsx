@@ -1,8 +1,11 @@
+import '@mantine/core/styles.css'
+import { Button, MantineProvider } from "@mantine/core"
+
 const App = () => {
   return (
-    <>
-      Home Page
-    </>
+    <MantineProvider>
+      <Button>Click Me</Button>
+    </MantineProvider>
   )
 }
 
