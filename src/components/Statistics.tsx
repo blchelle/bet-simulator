@@ -1,4 +1,4 @@
-import { SimpleGrid } from "@mantine/core";
+import { Card, Group, SimpleGrid, Text } from "@mantine/core";
 import React from "react";
 import StatCard from "./StatCard";
 import { displayNumber } from "../util/numbers";
@@ -20,32 +20,43 @@ const Statistics: React.FC<StatisticsProps> = ({
   averageBeatingCLV,
   simulationResult,
 }) => {
+  const showResults = parsedFile && percentageBeatingCLV && averageBeatingCLV;
+
   return (
-    <SimpleGrid cols={3}>
-      <StatCard label="Total Bets" value={`${parsedFile?.length}`} />
-      <StatCard label="Amount Wagered" value={`$${displayNumber(amountWagered)}`} />
-      <StatCard label="Profit / Loss" value={`$${displayNumber(profit)}`} />
-      <StatCard
-        label="Beating CLV"
-        value={`${percentageBeatingCLV?.toFixed(1)}%`}
-        tooltip="The percent of your wagers where your odds beat CLV."
-      />
-      <StatCard
-        label="Average CLV"
-        value={`${averageBeatingCLV?.toFixed(1)}%`}
-        tooltip="The average percent that you beat CLV by."
-      />
-      <StatCard
-        label="Break Even Percent"
-        value={simulationResult ? `${simulationResult.breakEvenPercent.toFixed(1)}%` : "-"}
-        tooltip="The percent of simulations where you broke even or made a profit."
-      />
-      <StatCard
-        label="Simulations Beaten"
-        value={simulationResult ? `${simulationResult.actualPercent.toFixed(1)}%` : "-"}
-        tooltip="The percent of simulations your actual results performed better than."
-      />
-    </SimpleGrid>
+    <Card withBorder>
+      {showResults && (
+        <SimpleGrid cols={3}>
+          <StatCard label="Total Bets" value={`${parsedFile?.length}`} />
+          <StatCard label="Amount Wagered" value={`$${displayNumber(amountWagered)}`} />
+          <StatCard label="Profit / Loss" value={`$${displayNumber(profit)}`} />
+          <StatCard
+            label="Beating CLV"
+            value={`${percentageBeatingCLV.toFixed(1)}%`}
+            tooltip="The percent of your wagers where your odds beat CLV."
+          />
+          <StatCard
+            label="Average CLV"
+            value={`${averageBeatingCLV.toFixed(1)}%`}
+            tooltip="The average percent that you beat CLV by."
+          />
+          <StatCard
+            label="Break Even Percent"
+            value={simulationResult ? `${simulationResult.breakEvenPercent.toFixed(1)}%` : "-"}
+            tooltip="The percent of simulations where you broke even or made a profit."
+          />
+          <StatCard
+            label="Simulations Beaten"
+            value={simulationResult ? `${simulationResult.actualPercent.toFixed(1)}%` : "-"}
+            tooltip="The percent of simulations your actual results performed better than."
+          />
+        </SimpleGrid>
+      )}
+      {!showResults && (
+        <Group align="center" justify="center" h={"100%"}>
+          <Text fw="bold">Upload your betting history to view your statistics</Text>
+        </Group>
+      )}
+    </Card>
   );
 };
 

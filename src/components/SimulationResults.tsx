@@ -11,15 +11,19 @@ interface SimulationResultsProps {
 const SimulationResults: React.FC<SimulationResultsProps> = ({ parsedFile, simulationRunning, simulationResult }) => {
   const breakEvenBinLabel = simulationResult?.histogram.find((bin) => {
     const [lower, upper] = bin.range.replace(/\$/g, "").split(" to ").map(Number);
-
     return lower <= 0 && upper >= 0;
+  })?.range;
+
+  const actualBinLabel = simulationResult?.histogram.find((bin) => {
+    const [lower, upper] = bin.range.replace(/\$/g, "").split(" to ").map(Number);
+    return lower <= simulationResult.actualProfit && upper >= simulationResult.actualProfit;
   })?.range;
 
   return (
     <Card withBorder>
       {(!parsedFile || (!simulationResult && !simulationRunning)) && (
         <Flex align={"center"} justify={"center"} h={400}>
-          <Title order={4}>Upload a CSV file of your bets to to run simulation</Title>
+          <Title order={4}>Upload your betting history to run a simulation</Title>
         </Flex>
       )}
       {parsedFile && simulationRunning && (
@@ -59,15 +63,21 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ parsedFile, simul
                 h={400}
                 data={simulationResult.histogram}
                 dataKey="range"
-                series={[{ name: "Count", color: "blue" }]}
+                series={[{ name: "Percentage", color: "blue" }]}
                 withXAxis={false}
                 valueFormatter={(value) => `${value.toFixed(2)}%`}
                 referenceLines={[
                   {
                     x: breakEvenBinLabel,
-                    color: "red",
+                    color: "green",
                     label: "Break Even",
                     labelPosition: "insideTopRight",
+                  },
+                  {
+                    x: actualBinLabel,
+                    color: "yellow",
+                    label: "Actual",
+                    labelPosition: actualBinLabel === breakEvenBinLabel ? "insideTopLeft" : "insideTopRight",
                   },
                 ]}
               />

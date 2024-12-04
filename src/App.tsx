@@ -1,16 +1,19 @@
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/dropzone/styles.css";
-import { Card, Group, Stack, Title, Text, ActionIcon, useMantineColorScheme } from "@mantine/core";
+import { Card, Group, Stack, Title, Text, ActionIcon, useMantineColorScheme, Button } from "@mantine/core";
 import React from "react";
 import { useCallback, useMemo, useState } from "react";
 import { runSimulation } from "./util/simulator";
 import { parseCsvFile } from "./util/parse";
-import { IconMoon, IconSun } from "@tabler/icons-react";
+import { IconBrandGithub, IconMoon, IconSun } from "@tabler/icons-react";
 import FileUpload from "./components/FileUpload";
 import SimulationControls from "./components/SimulationControls";
 import Statistics from "./components/Statistics";
 import SimulationResults from "./components/SimulationResults";
+import { modals } from "@mantine/modals";
+import InstructionsModal from "./components/InstructionsModal";
+import Footer from "./components/Footer";
 
 const App: React.FC = () => {
   const [parsedFile, setParsedFile] = useState<Bet[] | null>(null);
@@ -78,24 +81,50 @@ const App: React.FC = () => {
     <Stack mx={64} my={32}>
       <Group justify="space-between">
         <Title>OddsJam Betting Simulator</Title>
-        <ActionIcon onClick={toggleColorScheme} size={"lg"} variant="light">
-          {colorScheme === "dark" ? <IconSun /> : <IconMoon />}
-        </ActionIcon>
+        <Group>
+          <ActionIcon
+            component="a"
+            variant="light"
+            size="lg"
+            color="gray"
+            href="https://github.com/blchelle/bet-simulator"
+            target="_blank"
+          >
+            <IconBrandGithub />
+          </ActionIcon>
+          <ActionIcon onClick={toggleColorScheme} size={"lg"} variant="light">
+            {colorScheme === "dark" ? <IconSun /> : <IconMoon />}
+          </ActionIcon>
+        </Group>
       </Group>
       <Group grow align="stretch">
         <Card withBorder>
           <Stack>
-            <Text>
-              This website allows you to upload a CSV file of your betting history on OddsJam and then runs 1,000
-              simulation to see a variety of possible outcomes. This simulation will expose the best case, worst case,
-              and average scenarios so you can see if you have lucky or unlucky over the duration of your bets.
-            </Text>
+            <Stack align="start" gap={0}>
+              <Text>
+                This website allows you to upload a CSV file of your betting history on OddsJam and then runs 1,000
+                simulation to see a variety of possible outcomes. This simulation will expose the best case, worst case,
+                and average scenarios so you can see if you have lucky or unlucky over the duration of your bets.
+              </Text>
+              <Button
+                variant="transparent"
+                px={0}
+                onClick={() =>
+                  modals.open({
+                    title: "Instructions to Export CSV from OddsJam",
+                    children: <InstructionsModal />,
+                    size: "xl",
+                  })
+                }
+              >
+                Open Instructions
+              </Button>
+            </Stack>
             <Stack gap={0}>
               <Text fw={"bold"}>Disclaimer</Text>
               <Text size="sm">
                 This simulator assumes that all of your bets are completely independent of each other. If you commonly
-                make bets that have positive or negative correlation, then the results of this simulator may not be
-                accurate.
+                bets on correlated outcomes, the results of this simulator may not be accurate.
               </Text>
             </Stack>
             <FileUpload parsedFile={parsedFile} handleFileChange={handleFileChange} errorMessage={errorMessage} />
@@ -109,18 +138,14 @@ const App: React.FC = () => {
             />
           </Stack>
         </Card>
-        <Card withBorder>
-          {parsedFile && percentageBeatingCLV && averageBeatingCLV && (
-            <Statistics
-              parsedFile={parsedFile}
-              amountWagered={amountWagered}
-              profit={profit}
-              percentageBeatingCLV={percentageBeatingCLV}
-              averageBeatingCLV={averageBeatingCLV}
-              simulationResult={simulationResult}
-            />
-          )}
-        </Card>
+        <Statistics
+          parsedFile={parsedFile}
+          amountWagered={amountWagered}
+          profit={profit}
+          percentageBeatingCLV={percentageBeatingCLV}
+          averageBeatingCLV={averageBeatingCLV}
+          simulationResult={simulationResult}
+        />
       </Group>
       <Group grow>
         <SimulationResults
@@ -129,6 +154,7 @@ const App: React.FC = () => {
           simulationResult={simulationResult}
         />
       </Group>
+      <Footer />
     </Stack>
   );
 };

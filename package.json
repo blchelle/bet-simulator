@@ -15,6 +15,7 @@
     "@mantine/core": "^7.14.3",
     "@mantine/dropzone": "^7.14.3",
     "@mantine/hooks": "^7.14.3",
+    "@mantine/modals": "^7.14.3",
     "@tabler/icons": "^3.23.0",
     "@tabler/icons-react": "^3.23.0",
     "papaparse": "^5.4.1",

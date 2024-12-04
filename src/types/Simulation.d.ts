@@ -8,10 +8,11 @@ interface LineGraphData {
 
 interface HistogramData {
   range: string;
-  Count: number;
+  Percentage: number;
 }
 
 interface SimulationResult {
+  actualProfit: number;
   breakEvenPercent: number;
   actualPercent: number;
   lineGraph: LineGraphData[];

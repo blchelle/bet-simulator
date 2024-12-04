@@ -1,6 +1,7 @@
 export const runSimulation = (bets: Bet[] | null, runs: number, bins: number): SimulationResult => {
   if (!bets)
     return {
+      actualProfit: 0,
       breakEvenPercent: 0,
       actualPercent: 0,
       lineGraph: [],
@@ -88,6 +89,7 @@ export const runSimulation = (bets: Bet[] | null, runs: number, bins: number): S
   });
 
   return {
+    actualProfit: actualResults[uniqueDates[uniqueDates.length - 1]],
     breakEvenPercent: 100 - (breakEvenCase / runs) * 100,
     actualPercent: (actualPercent / runs) * 100,
     lineGraph: aggregatedResults,
@@ -108,7 +110,7 @@ const generateHistogram = (results: number[], bins: number): HistogramData[] => 
   for (let i = 0; i < bins; i++) {
     const range = `$${(min + i * binSize).toFixed(0)} to $${(min + (i + 1) * binSize).toFixed(0)}`;
     const count = results.filter((result) => result >= min + i * binSize && result < min + (i + 1) * binSize).length;
-    histogram.push({ range, Count: (count / results.length) * 100 });
+    histogram.push({ range, Percentage: (count / results.length) * 100 });
   }
 
   return histogram;
