@@ -4,6 +4,7 @@ interface CsvBet {
   stake: string;
   status: string;
   event_start_date: string;
+  bet_type: string;
   percentage: string;
 }
 
@@ -14,5 +15,6 @@ interface Bet {
   stake: number;
   status: string;
   event_start_date: Date;
+  bet_type: string;
   percentage: number;
 }

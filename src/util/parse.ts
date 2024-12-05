@@ -1,16 +1,7 @@
 import Papa from "papaparse";
 import { americanToDecimal } from "./odds";
 
-interface CsvBet {
-  event_start_date: string;
-  odds: string;
-  clv: string;
-  stake: string;
-  percentage: string;
-  status: string;
-}
-
-const requiredColumns = ["event_start_date", "odds", "clv", "stake", "percentage", "status"];
+const requiredColumns = ["event_start_date", "odds", "clv", "stake", "percentage", "status", "bet_type"];
 
 export const parseCsvFile = (file: File, onComplete: (bets: Bet[] | null, error: string | null) => void) => {
   Papa.parse(file, {
@@ -20,7 +11,6 @@ export const parseCsvFile = (file: File, onComplete: (bets: Bet[] | null, error:
       const data = result.data as CsvBet[];
 
       const missingColumns = requiredColumns.filter((column) => !result.meta.fields?.includes(column));
-
       if (missingColumns.length > 0) {
         onComplete(null, `Missing required columns: ${missingColumns.join(", ")}`);
         return;
@@ -28,6 +18,7 @@ export const parseCsvFile = (file: File, onComplete: (bets: Bet[] | null, error:
 
       const parsedBets = data
         .filter((row) => row.status !== "pending")
+        .filter((row) => row.bet_type === "positive_ev")
         .sort((a, b) => new Date(a.event_start_date).getTime() - new Date(b.event_start_date).getTime())
         .map((row) => ({
           ...row,

@@ -80,7 +80,7 @@ const App: React.FC = () => {
   return (
     <Stack mx={64} my={32}>
       <Group justify="space-between">
-        <Title>OddsJam Betting Simulator</Title>
+        <Title>OddsJam +EV Betting Simulator</Title>
         <Group>
           <ActionIcon
             component="a"
@@ -124,7 +124,8 @@ const App: React.FC = () => {
               <Text fw={"bold"}>Disclaimer</Text>
               <Text size="sm">
                 This simulator assumes that all of your bets are completely independent of each other. If you commonly
-                bets on correlated outcomes, the results of this simulator may not be accurate.
+                bets on correlated outcomes, the results of this simulator may not be accurate. Only your +EV bets will
+                be included in the simulation results.
               </Text>
             </Stack>
             <FileUpload parsedFile={parsedFile} handleFileChange={handleFileChange} errorMessage={errorMessage} />
