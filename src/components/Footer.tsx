@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
     <Group>
       <Text>Made by Brock Chelle</Text>
       <Divider orientation="vertical" />
-      <Anchor href="https://linkedin.com/blchelle" target="_blank">
+      <Anchor href="https://www.linkedin.com/in/blchelle" target="_blank">
         LinkedIn
       </Anchor>
       <Divider orientation="vertical" />
