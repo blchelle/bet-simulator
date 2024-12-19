@@ -1,39 +1,54 @@
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/dropzone/styles.css";
+import "@mantine/dates/styles.css";
 import { Card, Group, Stack, Title, Text, ActionIcon, useMantineColorScheme, Button } from "@mantine/core";
-import React from "react";
+import { DatePickerInput } from "@mantine/dates";
+import React, { useEffect } from "react";
 import { useCallback, useMemo, useState } from "react";
-import { runSimulation } from "./util/simulator";
 import { parseCsvFile } from "./util/parse";
 import { IconBrandGithub, IconMoon, IconSun } from "@tabler/icons-react";
 import FileUpload from "./components/FileUpload";
-import SimulationControls from "./components/SimulationControls";
 import Statistics from "./components/Statistics";
 import SimulationResults from "./components/SimulationResults";
 import { modals } from "@mantine/modals";
 import InstructionsModal from "./components/InstructionsModal";
 import Footer from "./components/Footer";
+import SimulationWorker from "./workers/simulationWorker?worker";
+
+const HISTOGRAM_BINS = 20;
+const SIMULATION_RUNS = 1000;
 
 const App: React.FC = () => {
   const [parsedFile, setParsedFile] = useState<Bet[] | null>(null);
   const [simulationRunning, setSimulationRunning] = useState(false);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
-  const [runs, setRuns] = useState(1000);
-  const [bins, setBins] = useState(20);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
-  const { percentageBeatingCLV, averageBeatingCLV } = useMemo(() => {
-    if (!parsedFile) return { percentageBeatingCLV: null, averageBeatingCLV: null };
+  const filteredBets = useMemo(() => {
+    if (!parsedFile || !dateRange[0] || !dateRange[1]) return parsedFile;
 
-    const betsBeatingCLV = parsedFile.filter((bet) => bet.odds > bet.clv);
-    const percentageBeatingCLV = (betsBeatingCLV.length / parsedFile.length) * 100;
+    const rangeStart = new Date(dateRange[0]);
+    const rangeEnd = new Date(dateRange[1]);
+    rangeEnd.setHours(23, 59, 59, 999); // Sets to the end of the day
+
+    return parsedFile.filter(
+      (bet) => new Date(bet.event_start_date) >= rangeStart && new Date(bet.event_start_date) <= rangeEnd,
+    );
+  }, [parsedFile, dateRange]);
+
+  const { percentageBeatingCLV, averageBeatingCLV } = useMemo(() => {
+    if (!filteredBets) return { percentageBeatingCLV: null, averageBeatingCLV: null };
+
+    const betsBeatingCLV = filteredBets.filter((bet) => bet.odds > bet.clv);
+    const percentageBeatingCLV = (betsBeatingCLV.length / filteredBets.length) * 100;
     const averageBeatingCLV =
-      parsedFile.reduce((acc, bet, i) => (acc * i + (bet.odds / bet.clv - 1)) / (i + 1), 0) * 100;
+      filteredBets.reduce((acc, bet, i) => (acc * i + (bet.odds / bet.clv - 1)) / (i + 1), 0) * 100;
 
     return { percentageBeatingCLV, averageBeatingCLV };
-  }, [parsedFile]);
+  }, [filteredBets]);
 
   const handleFileChange = (file: File | null) => {
     if (!file) {
@@ -54,20 +69,30 @@ const App: React.FC = () => {
   };
 
   const handleRunSimulation = useCallback(() => {
-    if (!parsedFile) return;
+    if (!filteredBets) return;
 
     setSimulationResult(null);
     setSimulationRunning(true);
-    setTimeout(() => {
-      const result = runSimulation(parsedFile, runs, bins);
-      setSimulationResult(result);
-      setSimulationRunning(false);
-    }, 0);
-  }, [parsedFile, runs, bins]);
 
-  const amountWagered = parsedFile?.reduce((acc, bet) => acc + bet.stake, 0) || 0;
+    const worker = new SimulationWorker();
+    worker.postMessage({ bets: filteredBets, runs: SIMULATION_RUNS, bins: HISTOGRAM_BINS });
+    console.log("firing worker");
+    worker.onmessage = (e) => {
+      setSimulationResult(e.data);
+      setSimulationRunning(false);
+      worker.terminate();
+    };
+  }, [filteredBets]);
+
+  useEffect(() => {
+    if (dateRange[0] && !dateRange[1]) return;
+
+    handleRunSimulation();
+  }, [dateRange, filteredBets]);
+
+  const amountWagered = filteredBets?.reduce((acc, bet) => acc + bet.stake, 0) || 0;
   const profit =
-    parsedFile?.reduce((acc, bet) => {
+    filteredBets?.reduce((acc, bet) => {
       if (bet.status === "won") {
         return acc + bet.stake * (bet.odds - 1);
       } else if (bet.status === "lost") {
@@ -82,6 +107,15 @@ const App: React.FC = () => {
       <Group justify="space-between">
         <Title>OddsJam +EV Betting Simulator</Title>
         <Group>
+          <DatePickerInput
+            valueFormat="MMM DD YYYY"
+            placeholder="Pick date range"
+            type="range"
+            value={dateRange}
+            onChange={setDateRange}
+            w={240}
+            clearable
+          />
           <ActionIcon
             component="a"
             variant="light"
@@ -129,18 +163,13 @@ const App: React.FC = () => {
               </Text>
             </Stack>
             <FileUpload parsedFile={parsedFile} handleFileChange={handleFileChange} errorMessage={errorMessage} />
-            <SimulationControls
-              runs={runs}
-              setRuns={setRuns}
-              bins={bins}
-              setBins={setBins}
-              handleRunSimulation={handleRunSimulation}
-              parsedFile={parsedFile}
-            />
+            <Button onClick={handleRunSimulation} disabled={!filteredBets || simulationRunning}>
+              Run Simulation
+            </Button>
           </Stack>
         </Card>
         <Statistics
-          parsedFile={parsedFile}
+          parsedFile={filteredBets}
           amountWagered={amountWagered}
           profit={profit}
           percentageBeatingCLV={percentageBeatingCLV}
@@ -150,7 +179,7 @@ const App: React.FC = () => {
       </Group>
       <Group grow>
         <SimulationResults
-          parsedFile={parsedFile}
+          parsedFile={filteredBets}
           simulationRunning={simulationRunning}
           simulationResult={simulationResult}
         />

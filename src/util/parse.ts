@@ -19,6 +19,7 @@ export const parseCsvFile = (file: File, onComplete: (bets: Bet[] | null, error:
       const parsedBets = data
         .filter((row) => row.status !== "pending")
         .filter((row) => row.bet_type === "positive_ev")
+        .filter((row) => row.odds && row.clv)
         .sort((a, b) => new Date(a.event_start_date).getTime() - new Date(b.event_start_date).getTime())
         .map((row) => ({
           ...row,

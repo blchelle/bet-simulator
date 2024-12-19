@@ -4,7 +4,12 @@ import React from "react";
 const Footer: React.FC = () => {
   return (
     <Group>
-      <Text>Made by Brock Chelle</Text>
+      <Text>
+        Made by{" "}
+        <Anchor href="https://brockchelle.com" target="_blank">
+          Brock Chelle
+        </Anchor>
+      </Text>
       <Divider orientation="vertical" />
       <Anchor href="https://www.linkedin.com/in/blchelle" target="_blank">
         LinkedIn

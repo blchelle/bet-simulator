@@ -461,6 +461,13 @@
     react-textarea-autosize "8.5.5"
     type-fest "^4.27.0"
 
+"@mantine/dates@^7.15.1":
+  version "7.15.1"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-7.15.1.tgz#714f7a5c8c9c190b1b63e4df320bd8572304d62d"
+  integrity sha512-3WXTq841Em4+e1VLm+t+1mQvfgNkgIAN8/puGg7lljf+Nl6moiI1qekjE1lg2q8EkqI+5uUOgLamlOYX411j5g==
+  dependencies:
+    clsx "^2.1.1"
+
 "@mantine/dropzone@^7.14.3":
   version "7.14.3"
   resolved "https://registry.yarnpkg.com/@mantine/dropzone/-/dropzone-7.14.3.tgz#0ae9d0b9eb86216626a5fb9e8b037835b79559b5"
@@ -1156,6 +1163,11 @@ data-view-byte-offset@^1.0.0:
     call-bind "^1.0.6"
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
+
+dayjs@^1.11.13:
+  version "1.11.13"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
+  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
 
 debug@^4.1.0, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4:
   version "4.3.7"
